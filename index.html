@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CALIX — Calisthenics Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/calendar.css" />
+  <link rel="stylesheet" href="css/workout.css" />
+  <link rel="stylesheet" href="css/timer.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
+  <nav id="main-nav">
+    <div class="nav-logo">CALI<span>X</span></div>
+
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home">PROGRAM</button>
+      <button class="nav-link" data-page="calendar">CALENDAR</button>
+      <button class="nav-link" data-page="workout">TODAY</button>
+      <button class="nav-link" data-page="timer">TIMER</button>
+    </div>
+
+    <div class="nav-right">
+      <div class="streak-badge">
+        <span class="streak-fire">🔥</span>
+        <span id="nav-streak">0 DAY STREAK</span>
+      </div>
+      <div class="progress-pill">
+        <span id="nav-progress-txt">0/84</span>
+        <div class="progress-bar-mini">
+          <div class="progress-bar-mini-fill" id="nav-progress-bar"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════ PAGES ══════════════════════════════════ -->
+  <div id="pages-container">
+
+    <!-- HOME PAGE injected by pages/home.js -->
+    <div class="page active" id="page-home"></div>
+
+    <!-- CALENDAR PAGE injected by pages/calendar.js -->
+    <div class="page" id="page-calendar"></div>
+
+    <!-- TODAY WORKOUT PAGE injected by pages/workout.js -->
+    <div class="page" id="page-workout"></div>
+
+    <!-- TIMER PAGE injected by pages/timer.js -->
+    <div class="page" id="page-timer"></div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════ SCRIPTS ════════════════════════════════ -->
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="pages/home.js"></script>
+  <script src="pages/calendar.js"></script>
+  <script src="pages/workout.js"></script>
+  <script src="pages/timer.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>
