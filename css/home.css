@@ -1,0 +1,164 @@
+/* ════════════════════════════════════════════
+   HOME.CSS — Program overview page
+   ════════════════════════════════════════════ */
+
+/* ─── HERO ─── */
+.hero {
+  padding: 56px 32px 40px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -120px; right: -180px;
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(212,255,71,0.04) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 32px; flex-wrap: wrap;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: clamp(56px, 9vw, 112px);
+  line-height: 0.88; letter-spacing: 2px;
+}
+.hero-title .hl1 { color: var(--text); }
+.hero-title .hl2 { color: var(--accent); }
+.hero-title .hl3 { color: var(--muted2); }
+
+.hero-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 2.5px; color: var(--muted);
+  margin-top: 14px; text-transform: uppercase;
+}
+
+.hero-stats { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 4px; }
+
+.h-stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 18px 22px; min-width: 100px;
+  transition: border-color 0.2s;
+}
+.h-stat:hover { border-color: var(--border2); }
+
+.h-stat-num {
+  font-family: 'Bebas Neue', cursive; font-size: 44px; line-height: 1;
+}
+.h-stat-label {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  letter-spacing: 1.5px; color: var(--muted); margin-top: 3px;
+}
+
+/* ─── MONTH TABS ─── */
+.month-tabs-wrap {
+  padding: 0 32px; margin-bottom: 24px;
+}
+.month-tabs {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.month-tab {
+  flex: 1; padding: 10px 12px; border-radius: 11px; border: none;
+  background: transparent; color: var(--muted);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.2px; text-align: center;
+}
+.month-tab:hover { color: var(--text); background: var(--surface2); }
+.month-tab.active[data-m="1"] { background: var(--m1); color: #0a0a0a; }
+.month-tab.active[data-m="2"] { background: var(--m2); color: #fff; }
+.month-tab.active[data-m="3"] { background: var(--m3); color: #0a0a0a; }
+
+/* ─── MONTH VIEW ─── */
+.month-view { display: none; padding: 0 32px 56px; }
+.month-view.active { display: block; }
+
+.month-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 22px; flex-wrap: wrap;
+}
+.m-badge {
+  font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 2px;
+  padding: 5px 12px; border-radius: 6px;
+}
+.m-badge-1 { background: rgba(212,255,71,0.1); color: var(--m1); border: 1px solid rgba(212,255,71,0.2); }
+.m-badge-2 { background: rgba(255,107,53,0.1); color: var(--m2); border: 1px solid rgba(255,107,53,0.2); }
+.m-badge-3 { background: rgba(71,201,255,0.1); color: var(--m3); border: 1px solid rgba(71,201,255,0.2); }
+
+.m-title { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 1px; }
+.m-freq {
+  margin-left: auto; font-size: 11px; color: var(--muted);
+  font-family: 'DM Mono', monospace; background: var(--surface2);
+  padding: 4px 11px; border-radius: 20px; border: 1px solid var(--border);
+}
+
+/* ─── WEEK STRIP ─── */
+.week-strip {
+  display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin-bottom: 28px;
+}
+.week-pip {
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 10px 4px; min-height: 56px;
+  font-family: 'DM Mono', monospace; transition: border-color 0.2s;
+}
+.week-pip.active-pip { border-color: var(--border2); }
+.week-pip.rest-pip   { opacity: 0.3; }
+.pip-day  { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.pip-type { font-size: 11px; font-weight: 500; color: var(--text); }
+.pip-dot  { width: 5px; height: 5px; border-radius: 50%; margin-top: 1px; }
+
+/* ─── DAY SELECTOR TABS ─── */
+.day-selector {
+  display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap;
+}
+.ds-btn {
+  padding: 7px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--muted); font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.5px; cursor: pointer; transition: all 0.17s;
+}
+.ds-btn:hover { background: var(--surface2); color: var(--text); }
+.ds-btn.active.m1-ds { background: var(--m1); border-color: var(--m1); color: #0a0a0a; }
+.ds-btn.active.m2-ds { background: var(--m2); border-color: var(--m2); color: #fff; }
+.ds-btn.active.m3-ds { background: var(--m3); border-color: var(--m3); color: #0a0a0a; }
+
+/* ─── WORKOUT PANELS ─── */
+.day-panel { display: none; }
+.day-panel.active { display: block; }
+
+/* ─── TIPS BAR ─── */
+.tips-bar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 16px 22px; margin-top: 8px;
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.tip-item { display: flex; flex-direction: column; gap: 5px; }
+.tip-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.tip-val   { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+/* ─── INFO CARD INNER ─── */
+.info-items { display: flex; flex-direction: column; gap: 16px; }
+.info-label {
+  font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace;
+  letter-spacing: 1px; margin-bottom: 5px;
+}
+.info-text { font-size: 13px; color: var(--text); line-height: 1.65; }
+.info-highlight {
+  padding: 10px 14px; border-radius: 8px; margin-top: 4px;
+}
+.info-highlight.m1 { background: rgba(212,255,71,0.05); border: 1px solid rgba(212,255,71,0.12); }
+.info-highlight.m2 { background: rgba(255,107,53,0.05); border: 1px solid rgba(255,107,53,0.12); }
+.info-highlight.m3 { background: rgba(71,201,255,0.05); border: 1px solid rgba(71,201,255,0.12); }
+
+@media (max-width: 768px) {
+  .hero { padding: 40px 16px 28px; }
+  .month-tabs-wrap { padding: 0 16px; }
+  .month-view { padding: 0 16px 40px; }
+  .week-strip { gap: 3px; }
+  .week-pip { min-height: 46px; }
+  .pip-type { font-size: 9px; }
+}
