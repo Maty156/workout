@@ -21,36 +21,41 @@ window.CalendarPage = {
   render() {
     const el = document.getElementById('page-calendar');
     el.innerHTML = `
-      <div class="cal-page-layout">
+      <div class="cal-page-layout anim-fade-in">
         <div class="cal-main">
           <div class="cal-top">
-            <button class="cal-nav-btn" id="cal-prev">&#8249;</button>
-            <div class="cal-month-name" id="cal-month-lbl"></div>
-            <button class="cal-nav-btn" id="cal-next">&#8250;</button>
-            <button class="cal-today-btn" id="cal-today-btn">TODAY</button>
+            <button class="cal-nav-btn glass" id="cal-prev">${Icons.get('arrowLeft', { size: 16 })}</button>
+            <div class="cal-month-name font-bebas" id="cal-month-lbl"></div>
+            <button class="cal-nav-btn glass" id="cal-next">${Icons.get('arrowRight', { size: 16 })}</button>
+            <button class="cal-today-btn btn-secondary" id="cal-today-btn">TODAY</button>
           </div>
-          <div class="cal-grid" id="cal-grid">
+          <div class="cal-grid glass" id="cal-grid" style="border-radius: var(--radius-lg); padding: 10px;">
             ${['SUN','MON','TUE','WED','THU','FRI','SAT'].map(d=>`<div class="cal-dow">${d}</div>`).join('')}
           </div>
+          
           <div class="heatmap-wrap">
-            <div class="section-head" style="margin-top:32px">
+            <div class="section-head" style="margin-top:48px">
               <span class="section-title font-bebas">12-WEEK HEATMAP</span>
               <div class="section-line"></div>
-              <span class="section-sub">FULL PROGRAM</span>
+              <span class="section-sub">PROGRAM PROGRESS</span>
             </div>
-            <div class="heatmap-rows" id="heatmap"></div>
+            <div class="heatmap-rows glass" id="heatmap" style="padding: 20px; border-radius: var(--radius-lg);"></div>
             <div class="hm-legend">
-              <div class="hm-legend-dot" style="background:var(--surface2)"></div><span>REST</span>
-              <div class="hm-legend-dot" style="background:rgba(255,92,92,0.3);margin-left:10px"></div><span>MISSED</span>
-              <div class="hm-legend-dot" style="background:rgba(212,255,71,0.65);margin-left:10px"></div><span>DONE</span>
+              <div class="hm-legend-dot" style="background:var(--surface3)"></div><span>REST</span>
+              <div class="hm-legend-dot" style="background:rgba(255,92,92,0.3);margin-left:14px"></div><span>MISSED</span>
+              <div class="hm-legend-dot" style="background:rgba(212,255,71,0.65);margin-left:14px"></div><span>DONE</span>
             </div>
           </div>
         </div>
+
         <div class="cal-sidebar">
           ${this.buildSidebarStats()}
           ${this.buildStartDateCard()}
-          <div style="text-align:center;margin-top:8px">
-            <button class="btn btn-danger" id="reset-btn">RESET ALL DATA</button>
+          ${this.buildDataCard()}
+          <div style="text-align:center;margin-top:16px">
+            <button class="btn btn-danger btn-full" id="reset-btn">
+              ${Icons.get('trash', { size: 14 })} RESET ALL DATA
+            </button>
           </div>
         </div>
       </div>`;
@@ -74,7 +79,7 @@ window.CalendarPage = {
 
   buildSidebarStats() {
     return `
-      <div class="side-card">
+      <div class="side-card glass">
         <div class="side-head">OVERALL STATS</div>
         <div class="side-body">
           <div class="stats-3">
@@ -82,9 +87,9 @@ window.CalendarPage = {
             <div class="s3-card"><div class="s3-num color-m2" id="s-missed">0</div><div class="s3-lbl">MISSED</div></div>
             <div class="s3-card"><div class="s3-num color-m1" id="s-streak">0</div><div class="s3-lbl">STREAK</div></div>
           </div>
-          <div style="margin-top:14px">
-            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px">
-              <span>OVERALL PROGRESS</span><span id="s-pct">0%</span>
+          <div style="margin-top:20px">
+            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px">
+              <span>TOTAL PROGRESS</span><span id="s-pct">0%</span>
             </div>
             <div class="prog-track"><div class="prog-fill" id="s-prog-bar" style="background:var(--accent);width:0%"></div></div>
           </div>
@@ -93,7 +98,7 @@ window.CalendarPage = {
               <div class="mp-row">
                 <div class="mp-top">
                   <span>MONTH ${m}</span>
-                  <span id="mp-txt-${m}">0/${m===1?12:m===2?32:40}</span>
+                  <span id="mp-txt-${m}" class="font-mono">0/${m===1?12:m===2?32:40}</span>
                 </div>
                 <div class="prog-track">
                   <div class="prog-fill" id="mp-bar-${m}" style="background:var(--m${m});width:0%"></div>
@@ -106,11 +111,11 @@ window.CalendarPage = {
 
   buildStartDateCard() {
     return `
-      <div class="side-card">
+      <div class="side-card glass">
         <div class="side-head">PROGRAM START DATE</div>
         <div class="side-body">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
-            Set the date you began. All tracking and the heatmap recalculate from this.
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+            Recalculate your entire 12-week schedule by changing your start date.
           </div>
           <input type="date" class="start-date-input" id="start-date-inp">
           <div class="start-week-txt" id="start-week-lbl"></div>
@@ -118,10 +123,27 @@ window.CalendarPage = {
       </div>`;
   },
 
+  buildDataCard() {
+    return `
+      <div class="side-card glass">
+        <div class="side-head">DATA MANAGEMENT</div>
+        <div class="side-body">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn btn-secondary" id="export-btn">
+              ${Icons.get('download', { size: 14 })} EXPORT
+            </button>
+            <button class="btn btn-secondary" id="import-trigger">
+              ${Icons.get('upload', { size: 14 })} IMPORT
+            </button>
+          </div>
+          <input type="file" id="import-file" style="display:none" accept=".json">
+        </div>
+      </div>`;
+  },
+
   renderCells() {
     const grid = document.getElementById('cal-grid');
     if (!grid) return;
-    // Remove old cells (keep 7 headers)
     const headers = Array.from(grid.children).slice(0, 7);
     grid.innerHTML = '';
     headers.forEach(h => grid.appendChild(h));
@@ -132,7 +154,6 @@ window.CalendarPage = {
     const firstDay = new Date(this.calYear, this.calMonth, 1);
     const lastDay  = new Date(this.calYear, this.calMonth+1, 0);
 
-    // blanks
     for (let i = 0; i < firstDay.getDay(); i++) {
       const b = document.createElement('div');
       b.className = 'cal-cell is-empty';
@@ -210,7 +231,6 @@ window.CalendarPage = {
         const key  = Store.dateToKey(date);
         const info = getDayInfo(pd);
         const status = this.trackData[key];
-        const isPast = date < today;
 
         const cell = document.createElement('div');
         cell.className = 'hm-cell';
@@ -274,13 +294,29 @@ window.CalendarPage = {
       this.renderCells();
     });
     el.querySelector('#reset-btn').addEventListener('click', () => {
-      if (!confirm('Reset all tracking data? Cannot be undone.')) return;
+      if (!confirm('Reset all tracking data? This will wipe your progress.')) return;
       Store.reset();
       this.trackData = {};
       this.renderCells(); this.renderHeatmap(); this.renderStats();
       HomePage.updateHeroStats();
     });
-    // Start date input — rendered after, so use event delegation
+    
+    // Export / Import
+    el.querySelector('#export-btn').addEventListener('click', () => Store.exportData());
+    const fileInp = el.querySelector('#import-file');
+    el.querySelector('#import-trigger').addEventListener('click', () => fileInp.click());
+    fileInp.addEventListener('change', async (e) => {
+      if (e.target.files.length > 0) {
+        try {
+          await Store.importData(e.target.files[0]);
+          alert('Data imported successfully!');
+          location.reload();
+        } catch (err) {
+          alert('Error: ' + err);
+        }
+      }
+    });
+
     el.addEventListener('change', (e) => {
       if (e.target.id === 'start-date-inp') {
         Store.setStartDate(e.target.value);
@@ -290,7 +326,7 @@ window.CalendarPage = {
         HomePage.updateHeroStats();
       }
     });
-    // Populate input after it's mounted
+
     setTimeout(() => {
       const inp = document.getElementById('start-date-inp');
       if (inp) inp.value = Store.dateToKey(this.startDate);
