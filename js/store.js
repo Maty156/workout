@@ -80,5 +80,42 @@ window.Store = {
   reset() {
     localStorage.removeItem(STORE_KEY);
     localStorage.removeItem(EXCK_KEY);
+  },
+
+  /* ─── Export / Import ─── */
+  exportData() {
+    const data = {
+      version: '2.0',
+      timestamp: new Date().toISOString(),
+      startDate: localStorage.getItem(START_KEY),
+      track: this.loadTrack(),
+      exChecks: this.loadExChecks()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `calix_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  async importData(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.startDate) localStorage.setItem(START_KEY, data.startDate);
+          if (data.track)     this.saveTrack(data.track);
+          if (data.exChecks)  this.saveExChecks(data.exChecks);
+          resolve(true);
+        } catch (err) {
+          reject('Invalid backup file');
+        }
+      };
+      reader.onerror = () => reject('Failed to read file');
+      reader.readAsText(file);
+    });
   }
 };
