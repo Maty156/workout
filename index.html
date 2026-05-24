@@ -4,8 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CALIX — Calisthenics Tracker</title>
+  
+  <meta name="description" content="A premium, offline-first calisthenics tracker for a 12-week progressive program." />
+  <meta name="theme-color" content="#080808" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/nav.css" />
   <link rel="stylesheet" href="css/home.css" />
@@ -16,22 +21,34 @@
 <body>
 
   <!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
-  <nav id="main-nav">
+  <nav id="main-nav" class="glass">
     <div class="nav-logo">CALI<span>X</span></div>
 
     <div class="nav-links">
-      <button class="nav-link active" data-page="home">PROGRAM</button>
-      <button class="nav-link" data-page="calendar">CALENDAR</button>
-      <button class="nav-link" data-page="workout">TODAY</button>
-      <button class="nav-link" data-page="timer">TIMER</button>
+      <button class="nav-link active" data-page="home" id="btn-nav-home">
+        <span class="nav-icon-wrap"></span>
+        <span class="nav-lbl">PROGRAM</span>
+      </button>
+      <button class="nav-link" data-page="calendar" id="btn-nav-calendar">
+        <span class="nav-icon-wrap"></span>
+        <span class="nav-lbl">CALENDAR</span>
+      </button>
+      <button class="nav-link" data-page="workout" id="btn-nav-workout">
+        <span class="nav-icon-wrap"></span>
+        <span class="nav-lbl">TODAY</span>
+      </button>
+      <button class="nav-link" data-page="timer" id="btn-nav-timer">
+        <span class="nav-icon-wrap"></span>
+        <span class="nav-lbl">TIMER</span>
+      </button>
     </div>
 
     <div class="nav-right">
-      <div class="streak-badge">
-        <span class="streak-fire">🔥</span>
-        <span id="nav-streak">0 DAY STREAK</span>
+      <div class="streak-badge glass">
+        <span class="streak-fire" id="nav-streak-icon"></span>
+        <span id="nav-streak">0 DAYS</span>
       </div>
-      <div class="progress-pill">
+      <div class="progress-pill glass">
         <span id="nav-progress-txt">0/84</span>
         <div class="progress-bar-mini">
           <div class="progress-bar-mini-fill" id="nav-progress-bar"></div>
@@ -42,22 +59,14 @@
 
   <!-- ═══════════════════════════════════ PAGES ══════════════════════════════════ -->
   <div id="pages-container">
-
-    <!-- HOME PAGE injected by pages/home.js -->
     <div class="page active" id="page-home"></div>
-
-    <!-- CALENDAR PAGE injected by pages/calendar.js -->
     <div class="page" id="page-calendar"></div>
-
-    <!-- TODAY WORKOUT PAGE injected by pages/workout.js -->
     <div class="page" id="page-workout"></div>
-
-    <!-- TIMER PAGE injected by pages/timer.js -->
     <div class="page" id="page-timer"></div>
-
   </div>
 
   <!-- ═══════════════════════════════════ SCRIPTS ════════════════════════════════ -->
+  <script src="js/icons.js"></script>
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
   <script src="js/stats.js"></script>
