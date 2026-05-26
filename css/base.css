@@ -202,7 +202,14 @@ body {
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
-  :root { --nav-h: 64px; }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .card-body { padding: 16px 20px 20px; }
+  :root { 
+    --nav-h: 68px; 
+    --radius-lg: 18px;
+  }
+  body { padding-bottom: 20px; }
+  .page { padding-top: calc(var(--nav-h) + 10px); padding-left: 14px; padding-right: 14px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; }
+  .card-body { padding: 16px 18px 18px; }
+  .section-head { margin-bottom: 16px; }
+  .section-title { font-size: 20px; }
 }
