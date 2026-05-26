@@ -103,13 +103,42 @@
 
 /* ─── MOBILE ─── */
 @media (max-width: 1000px) {
-  #main-nav { padding: 0 16px; }
-  .nav-logo { font-size: 22px; }
-  .nav-lbl { display: none; }
-  .nav-links { gap: 4px; }
-  .nav-link { padding: 8px 12px; }
-  .nav-right { gap: 8px; }
-  .streak-badge span:last-child { display: none; }
-  .progress-pill { min-width: auto; padding: 10px; }
-  #nav-progress-txt { display: none; }
+  #main-nav { 
+    top: auto; 
+    bottom: 0; 
+    padding: 0 16px; 
+    height: 72px;
+    background: rgba(12, 12, 12, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: none;
+    border-top: 1px solid var(--glass-border);
+    justify-content: center;
+  }
+  .nav-logo { display: none; }
+  .nav-right { display: none; } /* Hide stats in bottom bar for clarity */
+  .nav-lbl { display: block; font-size: 8px; margin-top: 4px; }
+  .nav-links { 
+    position: static; 
+    transform: none; 
+    width: 100%;
+    background: transparent;
+    border: none;
+    justify-content: space-around;
+    padding: 0;
+  }
+  .nav-link { 
+    flex-direction: column; 
+    gap: 2px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    min-width: 64px;
+    transition: transform 0.2s;
+  }
+  .nav-link.active {
+    background: transparent;
+    color: var(--accent);
+    box-shadow: none;
+    transform: translateY(-4px);
+  }
+  .nav-link.active .nav-icon-wrap svg { stroke: var(--accent); }
 }

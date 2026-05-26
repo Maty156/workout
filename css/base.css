@@ -206,8 +206,8 @@ body {
     --nav-h: 68px; 
     --radius-lg: 18px;
   }
-  body { padding-bottom: 20px; }
-  .page { padding-top: calc(var(--nav-h) + 10px); padding-left: 14px; padding-right: 14px; }
+  body { padding-bottom: 80px; }
+  .page { padding-top: 20px; padding-left: 14px; padding-right: 14px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 16px; }
   .card-body { padding: 16px 18px 18px; }
   .section-head { margin-bottom: 16px; }
