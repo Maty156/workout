@@ -1,0 +1,22 @@
+{
+  "name": "CALIX — Calisthenics Tracker",
+  "short_name": "CALIX",
+  "description": "Premium 12-week progressive calisthenics program tracker.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#d4ff47",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
