@@ -1,17 +1,12 @@
 /* ════════════════════════════════════════════
-   PAGES/WORKOUT.JS — Fully guided session flow
-   Premium Version
+   PAGES/WORKOUT.JS — Guided session v3
+   + Rep logging, actual weight input, PR alerts,
+     skill section, improved done screen
    ════════════════════════════════════════════ */
 
 window.WorkoutPage = {
+  trackData: {}, startDate: null, viewingPd: 0, sessionState: null,
 
-  /* ─── STATE ─── */
-  trackData:   {},
-  startDate:   null,
-  viewingPd:   0,       
-  sessionState: null,   
-
-  /* ─── INIT ─── */
   init() {
     this.startDate = Store.getStartDate();
     this.trackData = Store.loadTrack();
@@ -27,9 +22,6 @@ window.WorkoutPage = {
     this.renderOverview();
   },
 
-  /* ══════════════════════════════════════════
-     RENDER SHELL
-  ══════════════════════════════════════════ */
   render() {
     const el = document.getElementById('page-workout');
     el.innerHTML = `
@@ -41,113 +33,99 @@ window.WorkoutPage = {
     this.renderOverview();
   },
 
-  /* ══════════════════════════════════════════
-     DAY PICKER
-  ══════════════════════════════════════════ */
+  /* ══ DAY PICKER ══ */
   renderDayPicker() {
     const wrap = document.getElementById('day-picker-wrap');
     if (!wrap) return;
     const today = new Date(); today.setHours(0,0,0,0);
     const todayPd = Store.getProgramDay(today, this.startDate);
-
     const pds = [];
-    for (let offset = -14; offset <= 14; offset++) {
-      const pd = todayPd + offset;
-      if (pd < 0 || pd >= 84) continue;
+    for (let offset=-14; offset<=14; offset++) {
+      const pd = todayPd+offset;
+      if (pd<0||pd>=84) continue;
       if (getDayInfo(pd)) pds.push(pd);
     }
-    if (!pds.includes(this.viewingPd) && this.viewingPd >= 0 && this.viewingPd < 84) {
-      pds.push(this.viewingPd); pds.sort((a,b) => a-b);
+    if (!pds.includes(this.viewingPd)&&this.viewingPd>=0&&this.viewingPd<84) {
+      pds.push(this.viewingPd); pds.sort((a,b)=>a-b);
     }
-
     const btnHtml = pds.map(pd => {
-      const info   = getDayInfo(pd);
-      const date   = new Date(this.startDate); date.setDate(date.getDate() + pd);
-      const key    = Store.dateToKey(date);
+      const info = getDayInfo(pd);
+      const date = new Date(this.startDate); date.setDate(date.getDate()+pd);
+      const key = Store.dateToKey(date);
       const status = this.trackData[key];
-      const isActive  = pd === this.viewingPd;
-      const isToday   = pd === todayPd;
-      const isDone    = status === 'done';
-      const isMissed  = status === 'missed';
-      
-      let cls = 'dp-btn glass';
-      if (isActive)  cls += ' dp-active';
-      else if (isDone)   cls += ' dp-done';
-      else if (isMissed) cls += ' dp-missed';
-      else if (isToday)  cls += ' dp-today';
-      
-      const icon = isDone ? Icons.get('check', { size: 10, class:'dp-icon' }) : '';
+      const isActive=pd===this.viewingPd, isToday=pd===todayPd;
+      const isDone=status==='done', isMissed=status==='missed';
+      let cls='dp-btn glass';
+      if(isActive) cls+=' dp-active';
+      else if(isDone) cls+=' dp-done';
+      else if(isMissed) cls+=' dp-missed';
+      else if(isToday) cls+=' dp-today';
+      const icon = isDone ? Icons.get('check',{size:10,class:'dp-icon'}) : '';
       return `<button class="${cls}" data-pd="${pd}">
         <span class="dp-week">W${Math.floor(pd/7)+1}</span>
-        <span class="dp-day">D${(pd%7)+1}</span>
-        ${icon}
+        <span class="dp-day">D${(pd%7)+1}</span>${icon}
       </button>`;
     }).join('');
-
     wrap.innerHTML = `
       <div class="day-picker-container">
-        <button class="dp-arrow glass" id="dp-prev">${Icons.get('arrowLeft', { size: 16 })}</button>
+        <button class="dp-arrow glass" id="dp-prev">${Icons.get('arrowLeft',{size:16})}</button>
         <div class="dp-scroll" id="dp-scroll">${btnHtml}</div>
-        <button class="dp-arrow glass" id="dp-next">${Icons.get('arrowRight', { size: 16 })}</button>
+        <button class="dp-arrow glass" id="dp-next">${Icons.get('arrowRight',{size:16})}</button>
       </div>`;
-
     wrap.querySelectorAll('.dp-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        this.sessionState = null;
-        this.viewingPd = parseInt(btn.dataset.pd);
-        this.renderDayPicker();
-        this.renderOverview();
-        this.hideFlow();
+        this.sessionState=null; this.viewingPd=parseInt(btn.dataset.pd);
+        this.renderDayPicker(); this.renderOverview(); this.hideFlow();
       });
     });
     wrap.querySelector('#dp-prev').addEventListener('click', () => {
-      const newPd = this.viewingPd - 1;
-      if (newPd >= 0) { this.sessionState = null; this.viewingPd = newPd; this.renderDayPicker(); this.renderOverview(); this.hideFlow(); }
+      const p=this.viewingPd-1;
+      if(p>=0){this.sessionState=null;this.viewingPd=p;this.renderDayPicker();this.renderOverview();this.hideFlow();}
     });
     wrap.querySelector('#dp-next').addEventListener('click', () => {
-      const newPd = this.viewingPd + 1;
-      if (newPd < 84) { this.sessionState = null; this.viewingPd = newPd; this.renderDayPicker(); this.renderOverview(); this.hideFlow(); }
+      const p=this.viewingPd+1;
+      if(p<84){this.sessionState=null;this.viewingPd=p;this.renderDayPicker();this.renderOverview();this.hideFlow();}
     });
-
-    setTimeout(() => {
-      const active = wrap.querySelector('.dp-active');
-      if (active) active.scrollIntoView({ inline:'center', behavior:'smooth' });
-    }, 50);
+    setTimeout(()=>{ const a=wrap.querySelector('.dp-active'); if(a) a.scrollIntoView({inline:'center',behavior:'smooth'}); },50);
   },
 
-  /* ══════════════════════════════════════════
-     OVERVIEW
-  ══════════════════════════════════════════ */
+  /* ══ OVERVIEW ══ */
   renderOverview() {
     const el = document.getElementById('wo-overview');
     if (!el) return;
-    const pd   = this.viewingPd;
-    const info = getDayInfo(pd);
-
-    if (!info) { el.innerHTML = this.buildRestView(pd); return; }
-
-    const date   = new Date(this.startDate); date.setDate(date.getDate() + pd);
-    const key    = Store.dateToKey(date);
-    const status = this.trackData[key];
-    const checks = Store.getChecksForDate(key);
-    const exOnly = info.dayData.exercises.filter(e => !e.type);
-    const totalMins = this.estimateTime(info.dayData);
-    const muscles = [...new Set(exOnly.map(e => e.muscle).filter(Boolean).join(' · ').split(' · '))];
+    const pd=this.viewingPd, info=getDayInfo(pd);
+    if (!info) { el.innerHTML=this.buildRestView(pd); return; }
+    const date=new Date(this.startDate); date.setDate(date.getDate()+pd);
+    const key=Store.dateToKey(date);
+    const status=this.trackData[key];
+    const checks=Store.getChecksForDate(key);
+    const repsData=Store.getRepsForDate(key);
+    const exOnly=info.dayData.exercises.filter(e=>!e.type);
+    const totalMins=this.estimateTime(info.dayData);
+    const muscles=[...new Set(exOnly.map(e=>e.muscle).filter(Boolean).join(' · ').split(' · '))];
+    const mData=PROGRAM[`month${info.month}`];
+    const hasSkill=mData.days.skill;
 
     el.innerHTML = `
       <div class="session-overview-layout">
         <div class="ov-main">
-          ${this.buildOverviewHeader(info, date, pd)}
-          ${this.buildExPreviewList(info, checks, key)}
-          
+          ${this.buildOverviewHeader(info,date,pd)}
+          ${this.buildExPreviewList(info,checks,repsData,key)}
+          ${hasSkill ? `<div class="skill-teaser glass">
+            <div class="st-icon">${Icons.get('trophy',{size:18,color:'var(--accent)'})}</div>
+            <div class="st-body">
+              <div class="st-title">SKILL TRAINING AVAILABLE</div>
+              <div class="st-sub">Complete main session first, then do skill work</div>
+            </div>
+            <button class="btn btn-ghost st-btn" id="skill-btn">VIEW</button>
+          </div>` : ''}
           <div class="ov-actions">
-            <button class="btn btn-primary btn-full start-session-btn ${status==='done'?'is-done':''}" id="start-btn" style="height: 56px; font-size: 16px;">
-              ${status==='done' ? Icons.get('rotate', { size: 18 }) + ' REDO SESSION' : this.sessionState ? Icons.get('play', { size: 18 }) + ' RESUME SESSION' : Icons.get('play', { size: 18 }) + ' START SESSION'}
+            <button class="btn btn-primary btn-full start-session-btn ${status==='done'?'is-done':''}" id="start-btn" style="height:56px;font-size:16px;">
+              ${status==='done' ? Icons.get('rotate',{size:18})+' REDO SESSION' : this.sessionState ? Icons.get('play',{size:18})+' RESUME SESSION' : Icons.get('play',{size:18})+' START SESSION'}
             </button>
             ${status==='done' ? `<button class="btn btn-secondary btn-full" style="margin-top:12px" id="undo-done-btn">UNDO COMPLETION</button>` : ''}
           </div>
         </div>
-
         <div class="ov-sidebar">
           <div class="ov-stat-card glass">
             <div class="ov-stat-label">SESSION INFO</div>
@@ -156,182 +134,186 @@ window.WorkoutPage = {
               <div class="ov-stat-box"><div class="stat-v" style="color:var(--accent)">${totalMins}</div><div class="stat-l">MINUTES</div></div>
             </div>
           </div>
-
           <div class="ov-stat-card glass">
             <div class="ov-stat-label">MUSCLES TARGETED</div>
             <div class="muscle-tags">${muscles.map(m=>`<span class="muscle-tag">${m}</span>`).join('')}</div>
           </div>
-
           <div class="ov-stat-card glass">
-            <div class="ov-stat-label">GOAL</div>
+            <div class="ov-stat-label">SESSION GOAL</div>
             <div class="ov-goal-text">${info.dayData.goal}</div>
           </div>
         </div>
       </div>`;
 
-    document.getElementById('start-btn').addEventListener('click', () => this.startSession(pd, info));
-    const undoBtn = document.getElementById('undo-done-btn');
-    if (undoBtn) {
-      undoBtn.addEventListener('click', () => {
-        delete this.trackData[key];
-        Store.saveTrack(this.trackData);
-        this.renderOverview(); this.renderDayPicker();
-        HomePage.updateHeroStats();
+    document.getElementById('start-btn').addEventListener('click', ()=>this.startSession(pd,info));
+    const undoBtn=document.getElementById('undo-done-btn');
+    if(undoBtn) {
+      undoBtn.addEventListener('click', ()=>{
+        delete this.trackData[key]; Store.saveTrack(this.trackData);
+        this.renderOverview(); this.renderDayPicker(); HomePage.updateHeroStats();
       });
+    }
+    if(hasSkill) {
+      document.getElementById('skill-btn').addEventListener('click', ()=>this.showSkillModal(mData.days.skill));
     }
   },
 
-  buildOverviewHeader(info, date, pd) {
-    const week = Math.floor(pd/7)+1;
-    const ds   = date.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
-    return `
-      <div class="ov-header">
-        <div class="ov-badge" style="background:${info.color}22; color:${info.color}">WEEK ${week}</div>
-        <h1 class="ov-title font-bebas">${info.label}</h1>
-        <div class="ov-meta font-mono">${ds.toUpperCase()}</div>
-      </div>`;
+  buildOverviewHeader(info,date,pd) {
+    const week=Math.floor(pd/7)+1;
+    const ds=date.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+    return `<div class="ov-header">
+      <div class="ov-badge" style="background:${info.color}22;color:${info.color}">WEEK ${week}</div>
+      <h1 class="ov-title font-bebas">${info.label}</h1>
+      <div class="ov-meta font-mono">${ds.toUpperCase()}</div>
+    </div>`;
   },
 
-  buildExPreviewList(info, checks, key) {
-    const exs = info.dayData.exercises;
-    const rows = exs.map(ex => {
-      let icon = Icons.get('dumbbell', { size: 16, color: 'var(--muted)' });
-      let label = ex.name;
-      let meta = `<strong>${ex.sets} sets</strong> · ${ex.reps}`;
-
-      if (ex.type === 'warmup') {
-        icon = Icons.get('flame', { size: 16, color: 'var(--m1)' });
-        label = 'Warm-up Routine'; meta = '5-7 min';
-      } else if (ex.type === 'cooldown') {
-        icon = Icons.get('snowflake', { size: 16, color: 'var(--m3)' });
-        label = 'Cool-down Stretches'; meta = '5-10 min';
-      }
-
+  buildExPreviewList(info,checks,repsData,key) {
+    const rows = info.dayData.exercises.map(ex => {
+      let icon=Icons.get('dumbbell',{size:16,color:'var(--muted)'}), label=ex.name, meta=`<strong>${ex.sets} sets</strong> · ${ex.reps}`;
+      if(ex.type==='warmup'){icon=Icons.get('flame',{size:16,color:'var(--m1)'});label='Warm-up Routine';meta='5–7 min';}
+      else if(ex.type==='cooldown'){icon=Icons.get('snowflake',{size:16,color:'var(--m3)'});label='Cool-down Stretches';meta='5–10 min';}
+      const pr=Store.getPR(ex.id);
+      const prBadge=pr?`<span class="pr-badge">PR: ${pr.reps} reps</span>`:'';
       return `<div class="ov-ex-row glass">
         <div class="ov-ex-icon">${icon}</div>
         <div class="ov-ex-info">
-          <div class="ov-ex-name">${label}</div>
+          <div class="ov-ex-name">${label} ${prBadge}</div>
           <div class="ov-ex-meta">${meta}</div>
         </div>
       </div>`;
     }).join('');
-    
     return `<div class="ov-ex-list">${rows}</div>`;
   },
 
   estimateTime(dayData) {
-    const exs = dayData.exercises.filter(e => !e.type);
-    let secs = 600; // warmup + cooldown approx
-    exs.forEach(ex => { secs += ex.sets * (ex.isTimed ? ex.defaultSecs : 45) + ex.sets * ex.restSecs; });
+    const exs=dayData.exercises.filter(e=>!e.type);
+    let secs=600;
+    exs.forEach(ex=>{ secs+=ex.sets*(ex.isTimed?ex.defaultSecs:45)+ex.sets*ex.restSecs; });
     return Math.round(secs/60);
   },
 
   buildRestView(pd) {
-    return `
-      <div class="rest-day-hero anim-fade-up">
-        <div class="rd-icon">${Icons.get('clock', { size: 64, color: 'var(--muted)' })}</div>
-        <h1 class="font-bebas">REST & RECOVER</h1>
-        <p>Recovery is where the growth happens. Use today to hydrate, stretch, and sleep well.</p>
-        <div class="rd-tips-grid">
-          <div class="rd-tip-card glass">
-            <div class="rd-tip-icon">💧</div>
-            <div class="rd-tip-title">HYDRATE</div>
-          </div>
-          <div class="rd-tip-card glass">
-            <div class="rd-tip-icon">🥩</div>
-            <div class="rd-tip-title">PROTEIN</div>
-          </div>
-          <div class="rd-tip-card glass">
-            <div class="rd-tip-icon">🧘</div>
-            <div class="rd-tip-title">STRETCH</div>
-          </div>
-        </div>
-      </div>`;
+    const tips=[
+      {icon:'💧',title:'HYDRATE',text:'Drink 2–3L today. Recovery needs water.'},
+      {icon:'🥩',title:'PROTEIN',text:'Hit your protein goal even on rest days.'},
+      {icon:'🧘',title:'STRETCH',text:'10 min of light stretching aids recovery.'},
+      {icon:'😴',title:'SLEEP',text:'Aim for 7–9 hrs. Growth happens at night.'},
+    ];
+    return `<div class="rest-day-hero anim-fade-up">
+      <div class="rd-icon">${Icons.get('clock',{size:56,color:'var(--muted)'})}</div>
+      <h1 class="font-bebas">REST & RECOVER</h1>
+      <p>Recovery is where the growth happens. Your muscles are rebuilding right now.</p>
+      <div class="rd-tips-grid">
+        ${tips.map(t=>`<div class="rd-tip-card glass">
+          <div class="rd-tip-icon">${t.icon}</div>
+          <div class="rd-tip-title">${t.title}</div>
+          <div class="rd-tip-text">${t.text}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
   },
 
-  /* ══════════════════════════════════════════
-     SESSION FLOW
-  ══════════════════════════════════════════ */
+  /* ══ SKILL MODAL ══ */
+  showSkillModal(skillData) {
+    const existing=document.getElementById('skill-modal');
+    if(existing) existing.remove();
+    const modal=document.createElement('div');
+    modal.id='skill-modal';
+    modal.className='skill-modal-overlay';
+    modal.innerHTML=`
+      <div class="skill-modal glass anim-fade-up">
+        <div class="sm-header">
+          <div>
+            <div class="sm-title font-bebas">SKILL TRAINING</div>
+            <div class="sm-sub font-mono">${skillData.days} · ${skillData.goal}</div>
+          </div>
+          <button class="btn btn-ghost" id="sm-close">${Icons.get('x',{size:18})}</button>
+        </div>
+        <div class="sm-body">
+          ${skillData.exercises.map(ex=>`
+            <div class="sm-ex-card glass">
+              <div class="sm-ex-head">
+                <span class="sm-ex-name">${ex.name}</span>
+                <span class="tag tag-info">${ex.muscle}</span>
+              </div>
+              <div class="sm-ex-meta font-mono">${ex.sets} sets · ${ex.reps}</div>
+              <div class="sm-ex-tip">${Icons.get('lightbulb',{size:13,color:'var(--accent)'})} ${ex.tip}</div>
+              <div class="sm-ex-cues">${(ex.cues||[]).map((c,i)=>`<div class="cue-row"><span class="font-mono">${i+1}</span><p>${c}</p></div>`).join('')}</div>
+            </div>`).join('')}
+          ${skillData.notes ? `<div class="sm-notes glass">
+            ${skillData.notes.map(n=>`<div class="sm-note"><strong>${n.label}</strong><p>${n.text}</p></div>`).join('')}
+          </div>` : ''}
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+    document.getElementById('sm-close').addEventListener('click', ()=>modal.remove());
+  },
+
+  /* ══ SESSION FLOW ══ */
   startSession(pd, info) {
-    const date = new Date(this.startDate); date.setDate(date.getDate()+pd);
-    const key  = Store.dateToKey(date);
-
+    const date=new Date(this.startDate); date.setDate(date.getDate()+pd);
+    const key=Store.dateToKey(date);
     if (!this.sessionState) {
-      const steps = this.buildSteps(info.dayData, key);
-      this.sessionState = { pd, info, key, steps, stepIdx: 0, startTime: Date.now() };
+      const steps=this.buildSteps(info.dayData,key);
+      this.sessionState={ pd, info, key, steps, stepIdx:0, startTime:Date.now(), newPRs:[] };
     }
-
-    document.getElementById('wo-overview').style.display = 'none';
-    document.getElementById('day-picker-wrap').style.display = 'none';
-    const flowEl = document.getElementById('wo-flow');
+    document.getElementById('wo-overview').style.display='none';
+    document.getElementById('day-picker-wrap').style.display='none';
+    const flowEl=document.getElementById('wo-flow');
     flowEl.classList.add('active');
     this.renderStep();
   },
 
   buildSteps(dayData, key) {
-    const steps = [];
-    const exercises = dayData.exercises.filter(e => !e.type);
-    steps.push({ type:'warmup' });
-    exercises.forEach((ex, idx) => {
-      steps.push({ type:'exercise', ex, key });
-      if (idx < exercises.length - 1) {
-        steps.push({ type:'rest', restSecs: ex.restSecs, nextEx: exercises[idx+1] });
-      }
+    const steps=[], exercises=dayData.exercises.filter(e=>!e.type);
+    steps.push({type:'warmup'});
+    exercises.forEach((ex,idx)=>{
+      steps.push({type:'exercise',ex,key});
+      if(idx<exercises.length-1) steps.push({type:'rest',restSecs:ex.restSecs,nextEx:exercises[idx+1]});
     });
-    steps.push({ type:'cooldown' });
-    steps.push({ type:'done' });
+    steps.push({type:'cooldown'});
+    steps.push({type:'done'});
     return steps;
   },
 
   renderStep() {
-    const { steps, stepIdx } = this.sessionState;
-    const step = steps[stepIdx];
-    const flowEl = document.getElementById('wo-flow');
-    const pct = Math.round((stepIdx / (steps.length - 1)) * 100);
-
-    flowEl.innerHTML = `
+    const {steps,stepIdx}=this.sessionState;
+    const step=steps[stepIdx];
+    const flowEl=document.getElementById('wo-flow');
+    const pct=Math.round((stepIdx/(steps.length-1))*100);
+    flowEl.innerHTML=`
       <div class="flow-container">
         <div class="flow-header">
-          <div class="flow-progress">
-            <div class="flow-progress-fill" style="width:${pct}%"></div>
-          </div>
+          <div class="flow-progress"><div class="flow-progress-fill" style="width:${pct}%"></div></div>
           <div class="flow-nav-top">
-             <div class="flow-phase">${this.phaseLabel(step)}</div>
-             <div class="flow-step-num font-mono">${stepIdx+1} / ${steps.length}</div>
+            <div class="flow-phase">${this.phaseLabel(step)}</div>
+            <div class="flow-step-num font-mono">${stepIdx+1} / ${steps.length}</div>
           </div>
         </div>
         <div id="step-body" class="anim-fade-in"></div>
-      </div>
-    `;
-
-    const body = document.getElementById('step-body');
-    if (step.type === 'warmup')   this.renderWarmupStep(body, false);
-    else if (step.type === 'cooldown') this.renderWarmupStep(body, true);
-    else if (step.type === 'exercise') this.renderExerciseStep(body, step);
-    else if (step.type === 'rest')     this.renderRestStep(body, step);
-    else if (step.type === 'done')     this.renderDoneStep(body);
+      </div>`;
+    const body=document.getElementById('step-body');
+    if(step.type==='warmup') this.renderWarmupStep(body,false);
+    else if(step.type==='cooldown') this.renderWarmupStep(body,true);
+    else if(step.type==='exercise') this.renderExerciseStep(body,step);
+    else if(step.type==='rest') this.renderRestStep(body,step);
+    else if(step.type==='done') this.renderDoneStep(body);
   },
 
   phaseLabel(step) {
-    if (step.type === 'warmup')   return 'WARM-UP';
-    if (step.type === 'cooldown') return 'COOL-DOWN';
-    if (step.type === 'rest')     return 'REST';
-    if (step.type === 'done')     return 'COMPLETE';
-    if (step.type === 'exercise') return `EXERCISE ${step.ex.id}`;
-    return '';
+    const m={warmup:'WARM-UP',cooldown:'COOL-DOWN',rest:'REST',done:'COMPLETE'};
+    return m[step.type] || `EXERCISE ${step.ex?.id||''}`;
   },
 
   renderWarmupStep(body, isCooldown) {
-    const moves = isCooldown ? COOLDOWN_STEPS : WARMUP_STEPS;
-    const color = isCooldown ? 'var(--m3)' : 'var(--m1)';
-    let moveIdx = 0;
-    let timerInt = null;
-    let remaining = moves[0].duration;
-    let isRunning = false;
-
-    const build = () => {
-      const move = moves[moveIdx];
-      body.innerHTML = `
+    const moves=isCooldown?COOLDOWN_STEPS:WARMUP_STEPS;
+    const color=isCooldown?'var(--m3)':'var(--m1)';
+    let moveIdx=0, timerInt=null, remaining=moves[0].duration, isRunning=false;
+    const build=()=>{
+      const move=moves[moveIdx];
+      body.innerHTML=`
         <div class="wc-card glass">
           <div class="wc-header">
             <h2 style="color:${color}" class="font-bebas">${move.name}</h2>
@@ -339,213 +321,222 @@ window.WorkoutPage = {
           </div>
           <div class="wc-timer-section">
             <div class="wc-display font-bebas" id="wc-timer">${remaining}</div>
-            <button class="btn btn-primary" id="wc-start-btn" style="background:${color}; color:#000; width: 140px;">
-              ${isRunning ? Icons.get('pause', { size: 18 }) : Icons.get('play', { size: 18 })}
+            <button class="btn btn-primary" id="wc-start-btn" style="background:${color};color:#000;width:140px;">
+              ${isRunning?Icons.get('pause',{size:18}):Icons.get('play',{size:18})}
             </button>
           </div>
           <div class="wc-list">
-            ${moves.map((m,i) => `
-              <div class="wc-item ${i===moveIdx?'active':i<moveIdx?'done':''}">
-                <div class="wc-dot"></div>
-                <span>${m.name}</span>
-                <span class="font-mono">${m.duration}s</span>
-              </div>
-            `).join('')}
+            ${moves.map((m,i)=>`<div class="wc-item ${i===moveIdx?'active':i<moveIdx?'done':''}">
+              <div class="wc-dot"></div><span>${m.name}</span><span class="font-mono">${m.duration}s</span>
+            </div>`).join('')}
           </div>
         </div>
         <div class="flow-footer">
-           <button class="btn btn-secondary" id="wc-exit">${Icons.get('x', { size: 16 })} EXIT</button>
-           <div style="display:flex; gap:10px;">
-             ${moveIdx > 0 ? `<button class="btn btn-secondary" id="wc-back">BACK</button>` : ''}
-             <button class="btn btn-secondary" id="wc-skip">${moveIdx === moves.length-1 ? 'FINISH' : 'SKIP'}</button>
-           </div>
+          <button class="btn btn-secondary" id="wc-exit">${Icons.get('x',{size:16})} EXIT</button>
+          <div style="display:flex;gap:10px;">
+            ${moveIdx>0?`<button class="btn btn-secondary" id="wc-back">BACK</button>`:''}
+            <button class="btn btn-secondary" id="wc-skip">${moveIdx===moves.length-1?'FINISH':'SKIP'}</button>
+          </div>
         </div>`;
-
-      document.getElementById('wc-start-btn').addEventListener('click', () => {
-        if (isRunning) { clearInterval(timerInt); isRunning = false; build(); }
-        else {
-          isRunning = true; build();
-          timerInt = setInterval(() => {
+      document.getElementById('wc-start-btn').addEventListener('click',()=>{
+        if(isRunning){clearInterval(timerInt);isRunning=false;build();}
+        else{
+          isRunning=true;build();
+          timerInt=setInterval(()=>{
             remaining--;
-            if (remaining <= 0) {
-              clearInterval(timerInt); this.beep();
-              if (moveIdx < moves.length-1) { moveIdx++; remaining = moves[moveIdx].duration; isRunning=false; build(); }
+            if(remaining<=0){
+              clearInterval(timerInt);this.beep();
+              if(moveIdx<moves.length-1){moveIdx++;remaining=moves[moveIdx].duration;isRunning=false;build();}
               else this.advance();
-            } else {
-              const d = document.getElementById('wc-timer'); if (d) d.textContent = remaining;
-            }
-          }, 1000);
+            } else {const d=document.getElementById('wc-timer');if(d)d.textContent=remaining;}
+          },1000);
         }
       });
-      document.getElementById('wc-skip').addEventListener('click', () => {
+      document.getElementById('wc-skip').addEventListener('click',()=>{
         clearInterval(timerInt);
-        if (moveIdx < moves.length-1) { moveIdx++; remaining = moves[moveIdx].duration; build(); }
+        if(moveIdx<moves.length-1){moveIdx++;remaining=moves[moveIdx].duration;build();}
         else this.advance();
       });
-      if (moveIdx > 0) document.getElementById('wc-back').addEventListener('click', () => { clearInterval(timerInt); moveIdx--; remaining = moves[moveIdx].duration; build(); });
-      document.getElementById('wc-exit').addEventListener('click', () => { clearInterval(timerInt); this.exitSession(); });
+      if(moveIdx>0) document.getElementById('wc-back').addEventListener('click',()=>{clearInterval(timerInt);moveIdx--;remaining=moves[moveIdx].duration;build();});
+      document.getElementById('wc-exit').addEventListener('click',()=>{clearInterval(timerInt);this.exitSession();});
     };
     build();
   },
 
   renderExerciseStep(body, step) {
-    const { ex, key } = step;
-    const checks = Store.getChecksForDate(key);
-    
-    body.innerHTML = `
+    const {ex,key}=step;
+    const checks=Store.getChecksForDate(key);
+    const repsData=Store.getRepsForDate(key);
+    const pr=Store.getPR(ex.id);
+    body.innerHTML=`
       <div class="ex-step-layout">
         <div class="ex-main glass">
           <div class="ex-header-row">
             <h1 class="font-bebas">${ex.name}</h1>
             <div class="tag tag-info">${ex.muscle}</div>
           </div>
-          <div class="ex-tip glass"><span style="color:var(--accent)">${Icons.get('lightbulb', { size: 14 })} TIP:</span> ${ex.tip}</div>
-          <div class="ex-cues">
-            ${(ex.cues||[]).map((c,i) => `<div class="cue-row"><span class="font-mono">${i+1}</span><p>${c}</p></div>`).join('')}
-          </div>
+          ${pr?`<div class="pr-banner glass">🏆 Your PR: <strong>${pr.reps} reps</strong> — set on ${pr.date}</div>`:''}
+          <div class="ex-tip glass"><span style="color:var(--accent)">${Icons.get('lightbulb',{size:14})} TIP:</span> ${ex.tip}</div>
+          <div class="ex-cues">${(ex.cues||[]).map((c,i)=>`<div class="cue-row"><span class="font-mono">${i+1}</span><p>${c}</p></div>`).join('')}</div>
         </div>
         <div class="ex-tracker glass">
-           <div class="tracker-head font-bebas">SET TRACKER</div>
-           <div class="tracker-body" id="tracker-body"></div>
+          <div class="tracker-head font-bebas">SET TRACKER</div>
+          <div class="tracker-subhead font-mono">TAP ROW TO LOG REPS</div>
+          <div class="tracker-body" id="tracker-body"></div>
         </div>
       </div>
       <div class="flow-footer">
         <button class="btn btn-secondary" id="ex-exit">EXIT</button>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex;gap:10px;">
           <button class="btn btn-secondary" id="ex-prev">BACK</button>
-          <button class="btn btn-primary" id="ex-next">NEXT ${Icons.get('arrowRight', { size: 16 })}</button>
+          <button class="btn btn-primary" id="ex-next">NEXT ${Icons.get('arrowRight',{size:16})}</button>
         </div>
       </div>`;
-
-    this.renderSetRows(ex, key, checks);
-    document.getElementById('ex-next').addEventListener('click', () => this.advance());
-    document.getElementById('ex-prev').addEventListener('click', () => this.goBack());
-    document.getElementById('ex-exit').addEventListener('click', () => this.exitSession());
+    this.renderSetRows(ex,key,checks,repsData);
+    document.getElementById('ex-next').addEventListener('click',()=>this.advance());
+    document.getElementById('ex-prev').addEventListener('click',()=>this.goBack());
+    document.getElementById('ex-exit').addEventListener('click',()=>this.exitSession());
   },
 
-  renderSetRows(ex, key, checks) {
-    const body = document.getElementById('tracker-body');
-    body.innerHTML = Array.from({length: ex.sets}, (_,i) => {
-      const done = !!checks[`${ex.id}_set_${i}`];
-      return `
-        <div class="set-row-item glass ${done?'is-done':''}" data-set="${i}">
-           <div class="sr-label font-mono">SET ${i+1}</div>
-           <div class="sr-reps">${ex.reps}</div>
-           <button class="sr-check ${done?'checked':''}">${done ? Icons.get('check', { size: 14 }) : ''}</button>
-        </div>
-      `;
+  renderSetRows(ex, key, checks, repsData) {
+    const body=document.getElementById('tracker-body');
+    body.innerHTML=Array.from({length:ex.sets},(_,i)=>{
+      const ck=`${ex.id}_set_${i}`;
+      const done=!!checks[ck];
+      const loggedReps=(repsData[ck]||{}).reps||'';
+      return `<div class="set-row-item glass ${done?'is-done':''}" data-set="${i}">
+        <div class="sr-label font-mono">SET ${i+1}</div>
+        <div class="sr-reps-target">${ex.reps}</div>
+        <input class="sr-reps-input font-mono" type="number" min="0" max="200" placeholder="reps" value="${loggedReps}" data-set="${i}" ${ex.isTimed?'style="display:none"':''}/>
+        ${ex.isTimed?`<div class="sr-timed font-mono">${ex.defaultSecs}s</div>`:''}
+        <button class="sr-check ${done?'checked':''}">${done?Icons.get('check',{size:14}):''}</button>
+      </div>`;
     }).join('');
 
-    body.querySelectorAll('.set-row-item').forEach(row => {
-      row.addEventListener('click', () => {
-        const i = parseInt(row.dataset.set);
-        const k = `${ex.id}_set_${i}`;
-        const curr = !!Store.getChecksForDate(key)[k];
-        Store.setCheckForDate(key, k, !curr);
-        this.renderSetRows(ex, key, Store.getChecksForDate(key));
+    body.querySelectorAll('.sr-reps-input').forEach(inp=>{
+      inp.addEventListener('click', e=>e.stopPropagation());
+      inp.addEventListener('change', e=>{
+        const i=parseInt(inp.dataset.set);
+        const ck=`${ex.id}_set_${i}`;
+        const val=parseInt(inp.value)||0;
+        Store.setRepForDate(key,ck,{reps:val,exId:ex.id,exName:ex.name});
+        // check if new PR
+        const pr=Store.getPR(ex.id);
+        if(pr&&pr.date===Store.dateToKey(new Date())&&val>=pr.reps) {
+          this.sessionState.newPRs=this.sessionState.newPRs||[];
+          if(!this.sessionState.newPRs.includes(ex.name)) {
+            this.sessionState.newPRs.push(ex.name);
+            this.showPRFlash(ex.name,val);
+          }
+        }
+      });
+    });
+
+    body.querySelectorAll('.set-row-item').forEach(row=>{
+      row.addEventListener('click', e=>{
+        if(e.target.tagName==='INPUT') return;
+        const i=parseInt(row.dataset.set), ck=`${ex.id}_set_${i}`;
+        const curr=!!Store.getChecksForDate(key)[ck];
+        Store.setCheckForDate(key,ck,!curr);
+        this.renderSetRows(ex,key,Store.getChecksForDate(key),Store.getRepsForDate(key));
       });
     });
   },
 
+  showPRFlash(name, reps) {
+    const flash=document.createElement('div');
+    flash.className='pr-flash anim-fade-in';
+    flash.innerHTML=`🏆 NEW PR! ${name}: ${reps} reps`;
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(),3000);
+  },
+
   renderRestStep(body, step) {
-    const { restSecs, nextEx } = step;
-    let remaining = restSecs;
-    let isRunning = true;
-    
-    body.innerHTML = `
+    const {restSecs,nextEx}=step;
+    let remaining=restSecs, isRunning=true;
+    body.innerHTML=`
       <div class="rest-card glass">
         <div class="rest-label font-mono">REST PERIOD</div>
         <div class="rest-timer font-bebas" id="rest-timer">${remaining}</div>
         <div class="rest-next-label">NEXT UP</div>
         <div class="rest-next-name">${nextEx.name}</div>
         <div class="rest-actions">
-           <button class="btn btn-secondary" id="rest-pause">${Icons.get('pause', { size: 16 })}</button>
-           <button class="btn btn-primary" id="rest-skip" style="flex:1">SKIP REST</button>
+          <button class="btn btn-secondary" id="rest-pause">${Icons.get('pause',{size:16})}</button>
+          <button class="btn btn-primary" id="rest-skip" style="flex:1">SKIP REST</button>
         </div>
       </div>
       <div class="flow-footer">
         <button class="btn btn-secondary" id="rest-exit">EXIT</button>
         <button class="btn btn-secondary" id="rest-back">BACK</button>
       </div>`;
-
-    const timer = setInterval(() => {
-      if (!isRunning) return;
+    const timer=setInterval(()=>{
+      if(!isRunning) return;
       remaining--;
-      if (remaining <= 0) { clearInterval(timer); this.beep(); this.advance(); }
-      else { const d = document.getElementById('rest-timer'); if (d) d.textContent = remaining; }
-    }, 1000);
-
-    document.getElementById('rest-pause').addEventListener('click', () => {
-      isRunning = !isRunning;
-      document.getElementById('rest-pause').innerHTML = isRunning ? Icons.get('pause', { size: 16 }) : Icons.get('play', { size: 16 });
+      if(remaining<=0){clearInterval(timer);this.beep();this.advance();}
+      else{const d=document.getElementById('rest-timer');if(d)d.textContent=remaining;}
+    },1000);
+    document.getElementById('rest-pause').addEventListener('click',()=>{
+      isRunning=!isRunning;
+      document.getElementById('rest-pause').innerHTML=isRunning?Icons.get('pause',{size:16}):Icons.get('play',{size:16});
     });
-    document.getElementById('rest-skip').addEventListener('click', () => { clearInterval(timer); this.advance(); });
-    document.getElementById('rest-back').addEventListener('click', () => { clearInterval(timer); this.goBack(); });
-    document.getElementById('rest-exit').addEventListener('click', () => { clearInterval(timer); this.exitSession(); });
+    document.getElementById('rest-skip').addEventListener('click',()=>{clearInterval(timer);this.advance();});
+    document.getElementById('rest-back').addEventListener('click',()=>{clearInterval(timer);this.goBack();});
+    document.getElementById('rest-exit').addEventListener('click',()=>{clearInterval(timer);this.exitSession();});
   },
 
   renderDoneStep(body) {
-    const { pd, key, startTime, info, steps } = this.sessionState;
-    const elapsed = Math.round((Date.now() - startTime) / 60000);
-    this.trackData[key] = 'done';
+    const {pd,key,startTime,info,steps,newPRs=[]}=this.sessionState;
+    const elapsed=Math.round((Date.now()-startTime)/60000);
+    const exSteps=steps.filter(s=>s.type==='exercise');
+    const totalSets=exSteps.reduce((a,s)=>a+s.ex.sets,0);
+    const repsData=Store.getRepsForDate(key);
+    const totalReps=Object.values(repsData).reduce((a,v)=>a+(v.reps||0),0);
+    this.trackData[key]='done';
     Store.saveTrack(this.trackData);
     HomePage.updateHeroStats();
-
-    body.innerHTML = `
+    body.innerHTML=`
       <div class="done-hero anim-fade-up">
-        <div class="done-icon">${Icons.get('trophy', { size: 80, color: 'var(--accent)' })}</div>
+        <div class="done-icon">${Icons.get('trophy',{size:72,color:'var(--accent)'})}</div>
         <h1 class="font-bebas">SESSION COMPLETE!</h1>
-        <p>Great work. Progress is made in every single rep.</p>
+        <p>Great work. Every rep is progress — keep showing up.</p>
         <div class="done-stats-grid">
-           <div class="done-stat-box glass"><div class="v">${elapsed}</div><div class="l">MINUTES</div></div>
-           <div class="done-stat-box glass"><div class="v">${steps.filter(s=>s.type==='exercise').length}</div><div class="l">EXERCISES</div></div>
+          <div class="done-stat-box glass"><div class="v">${elapsed||1}</div><div class="l">MINUTES</div></div>
+          <div class="done-stat-box glass"><div class="v">${exSteps.length}</div><div class="l">EXERCISES</div></div>
+          <div class="done-stat-box glass"><div class="v">${totalSets}</div><div class="l">SETS</div></div>
+          <div class="done-stat-box glass"><div class="v">${totalReps||'—'}</div><div class="l">REPS LOGGED</div></div>
         </div>
-        <button class="btn btn-primary btn-full" id="done-finish" style="margin-top:32px; height: 56px;">BACK TO PROGRAM</button>
+        ${newPRs.length>0?`<div class="done-prs glass">
+          <div class="done-prs-title">🏆 PERSONAL RECORDS SET</div>
+          ${newPRs.map(n=>`<div class="done-pr-item">${n}</div>`).join('')}
+        </div>`:''}
+        <button class="btn btn-primary btn-full" id="done-finish" style="margin-top:32px;height:56px;">BACK TO PROGRAM</button>
       </div>`;
-
-    document.getElementById('done-finish').addEventListener('click', () => {
-      this.sessionState = null;
-      this.hideFlow();
-      this.renderDayPicker();
-      this.renderOverview();
+    document.getElementById('done-finish').addEventListener('click',()=>{
+      this.sessionState=null; this.hideFlow();
+      this.renderDayPicker(); this.renderOverview();
     });
   },
 
-  /* ── NAVIGATION ── */
-  advance() {
-    this.sessionState.stepIdx = Math.min(this.sessionState.stepIdx + 1, this.sessionState.steps.length - 1);
-    this.renderStep();
-  },
-  goBack() {
-    this.sessionState.stepIdx = Math.max(this.sessionState.stepIdx - 1, 0);
-    this.renderStep();
-  },
-  exitSession() {
-    this.sessionState = null;
-    this.hideFlow();
-    this.renderOverview();
-    this.renderDayPicker();
-  },
+  advance() { this.sessionState.stepIdx=Math.min(this.sessionState.stepIdx+1,this.sessionState.steps.length-1); this.renderStep(); },
+  goBack()  { this.sessionState.stepIdx=Math.max(this.sessionState.stepIdx-1,0); this.renderStep(); },
+  exitSession() { this.sessionState=null; this.hideFlow(); this.renderOverview(); this.renderDayPicker(); },
   hideFlow() {
-    const flowEl = document.getElementById('wo-flow');
-    if (flowEl) { flowEl.classList.remove('active'); flowEl.innerHTML = ''; }
-    const ov = document.getElementById('wo-overview');
-    if (ov) ov.style.display = '';
-    const dp = document.getElementById('day-picker-wrap');
-    if (dp) dp.style.display = '';
+    const flowEl=document.getElementById('wo-flow');
+    if(flowEl){flowEl.classList.remove('active');flowEl.innerHTML='';}
+    const ov=document.getElementById('wo-overview'); if(ov) ov.style.display='';
+    const dp=document.getElementById('day-picker-wrap'); if(dp) dp.style.display='';
   },
-
   beep() {
     try {
-      const ctx = new (window.AudioContext||window.webkitAudioContext)();
-      [0, 0.15, 0.3].forEach(t => {
-        const osc = ctx.createOscillator(); const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.frequency.value = 880;
-        g.gain.setValueAtTime(0.2, ctx.currentTime+t);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+t+0.1);
-        osc.start(ctx.currentTime+t); osc.stop(ctx.currentTime+t+0.12);
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      [0,0.15,0.3].forEach(t=>{
+        const osc=ctx.createOscillator(),g=ctx.createGain();
+        osc.connect(g);g.connect(ctx.destination);
+        osc.frequency.value=880;
+        g.gain.setValueAtTime(0.2,ctx.currentTime+t);
+        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.1);
+        osc.start(ctx.currentTime+t);osc.stop(ctx.currentTime+t+0.12);
       });
-    } catch(e) {}
+    } catch(e){}
   }
 };
