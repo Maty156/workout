@@ -1,0 +1,166 @@
+/* ════════════════════════════════════════════
+   EXTRAS.CSS — Light theme, onboarding,
+   PR system, skill modal, rep inputs, new components
+   ════════════════════════════════════════════ */
+
+/* ─── LIGHT THEME ─── */
+[data-theme="light"] {
+  --bg:         #f0f0ee;
+  --surface:    #ffffff;
+  --surface2:   #f5f5f3;
+  --surface3:   #ebebea;
+  --surface4:   #ddddd8;
+  --glass:      rgba(255,255,255,0.75);
+  --glass-border: rgba(0,0,0,0.08);
+  --border:     rgba(0,0,0,0.07);
+  --border2:    rgba(0,0,0,0.12);
+  --border3:    rgba(0,0,0,0.20);
+  --text:       #111110;
+  --muted:      rgba(17,17,16,0.5);
+  --muted2:     rgba(17,17,16,0.3);
+  background-image: radial-gradient(circle at 0% 0%, rgba(212,255,71,0.06) 0%, transparent 40%),
+                    radial-gradient(circle at 100% 100%, rgba(71,201,255,0.06) 0%, transparent 40%);
+}
+[data-theme="light"] body {
+  background: var(--bg);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: var(--surface4); }
+
+/* ─── THEME TOGGLE ─── */
+.theme-toggle-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; color: var(--muted);
+  transition: color 0.2s, background 0.2s;
+  background: var(--glass);
+}
+.theme-toggle-btn:hover { color: var(--text); }
+
+/* ─── ONBOARDING / PROFILE FIELDS ─── */
+.profile-field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+.field-input {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s;
+}
+.field-input:focus { outline: none; border-color: var(--accent); }
+.goal-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.goal-opt {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 8px;
+  color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  cursor: pointer; transition: all 0.2s;
+}
+.goal-opt.active { background: rgba(var(--accent-rgb),0.12); border-color: var(--accent); color: var(--accent); }
+.goal-opt:hover { border-color: var(--border3); color: var(--text); }
+
+/* ─── SKILL MODAL ─── */
+.skill-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+@media (min-width: 600px) { .skill-modal-overlay { align-items: center; } }
+.skill-modal {
+  width: 100%; max-width: 560px; max-height: 88vh;
+  border-radius: var(--radius-xl); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.sm-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.sm-title { font-size: 1.5rem; color: var(--text); }
+.sm-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.sm-body { overflow-y: auto; padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+.sm-ex-card { padding: 16px; border-radius: var(--radius-md); }
+.sm-ex-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px; }
+.sm-ex-name { font-weight: 600; font-size: 15px; }
+.sm-ex-meta { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.sm-ex-tip { font-size: 13px; color: var(--muted); margin-bottom: 10px; display: flex; gap: 6px; align-items: flex-start; }
+.sm-ex-cues { display: flex; flex-direction: column; gap: 6px; }
+.sm-notes { padding: 16px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 12px; }
+.sm-note strong { display: block; font-size: 11px; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 4px; }
+.sm-note p { font-size: 13px; color: var(--muted); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--border3); color: var(--text); }
+
+/* ─── SKILL TEASER on overview ─── */
+.skill-teaser {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border-radius: var(--radius-md); margin-bottom: 16px;
+  border: 1px solid rgba(var(--accent-rgb),0.2);
+}
+.st-icon { flex-shrink: 0; }
+.st-body { flex: 1; }
+.st-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+.st-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.st-btn { flex-shrink: 0; padding: 6px 14px; font-size: 11px; height: auto; }
+
+/* ─── REP INPUT in set tracker ─── */
+.sr-reps-input {
+  width: 64px; padding: 6px 8px; font-size: 14px;
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text); text-align: center;
+}
+.sr-reps-input:focus { outline: none; border-color: var(--accent); }
+.sr-reps-target { font-size: 11px; color: var(--muted); flex: 1; }
+.sr-timed { font-size: 12px; color: var(--muted); width: 64px; text-align: center; }
+.tracker-subhead { font-size: 10px; color: var(--muted2); letter-spacing: 0.08em; padding: 0 0 10px 0; }
+.set-row-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+.set-row-item:hover { border-color: var(--border2); }
+.set-row-item.is-done { background: rgba(var(--accent-rgb),0.06); border-color: rgba(var(--accent-rgb),0.2); }
+
+/* ─── PR SYSTEM ─── */
+.pr-badge {
+  display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace;
+  background: rgba(212,255,71,0.12); color: var(--accent);
+  padding: 2px 7px; border-radius: 20px; margin-left: 8px;
+  vertical-align: middle;
+}
+.pr-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--accent); margin-bottom: 12px;
+  background: rgba(212,255,71,0.07); border: 1px solid rgba(212,255,71,0.2);
+}
+.pr-flash {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #000; font-weight: 700; font-size: 14px;
+  padding: 12px 24px; border-radius: 40px; z-index: 2000;
+  box-shadow: 0 8px 32px rgba(212,255,71,0.4);
+  animation: slideUp 0.3s ease-out;
+  white-space: nowrap;
+}
+@keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(20px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+
+/* ─── DONE SCREEN UPGRADES ─── */
+.done-stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 24px 0; width: 100%; }
+@media (max-width: 480px) { .done-stats-grid { grid-template-columns: repeat(2,1fr); } }
+.done-prs { padding: 16px; border-radius: var(--radius-md); margin-top: 16px; border: 1px solid rgba(212,255,71,0.25); }
+.done-prs-title { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 10px; letter-spacing: 0.08em; }
+.done-pr-item { font-size: 13px; color: var(--text); padding: 4px 0; }
+
+/* ─── REST DAY UPGRADE ─── */
+.rd-tips-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; width: 100%; max-width: 420px; }
+.rd-tip-card { padding: 16px; border-radius: var(--radius-md); text-align: center; }
+.rd-tip-icon { font-size: 28px; margin-bottom: 8px; }
+.rd-tip-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--text); margin-bottom: 4px; }
+.rd-tip-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ─── CALENDAR PAGE STATS UPDATE ─── */
+.stats-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.s3-card { text-align: center; padding: 12px 8px; background: var(--surface2); border-radius: var(--radius-md); }
+.s3-num { font-family: 'Bebas Neue', cursive; font-size: 2rem; }
+.s3-lbl { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; margin-top: 2px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeUp   { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+@keyframes pop      { 0%,100% { transform:scale(1); } 50% { transform:scale(1.12); } }
+.anim-fade-in  { animation: fadeIn 0.35s ease-out; }
+.anim-fade-up  { animation: fadeUp 0.4s ease-out; }
+.anim-pop      { animation: pop 0.3s ease; }
