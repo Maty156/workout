@@ -1,22 +1,18 @@
 {
   "name": "CALIX — Calisthenics Tracker",
   "short_name": "CALIX",
-  "description": "Premium 12-week progressive calisthenics program tracker.",
-  "start_url": "./index.html",
+  "description": "12-week progressive calisthenics program. Zero equipment. Track workouts, log reps, earn personal records.",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#080808",
-  "theme_color": "#d4ff47",
   "orientation": "portrait",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "categories": ["fitness", "health", "sports"],
+  "lang": "en",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }
