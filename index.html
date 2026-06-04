@@ -1,54 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CALIX — Calisthenics Tracker</title>
-  
   <meta name="description" content="A premium, offline-first calisthenics tracker for a 12-week progressive program." />
   <meta name="theme-color" content="#080808" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
-  
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/nav.css" />
   <link rel="stylesheet" href="css/home.css" />
   <link rel="stylesheet" href="css/calendar.css" />
   <link rel="stylesheet" href="css/workout.css" />
   <link rel="stylesheet" href="css/timer.css" />
+  <link rel="stylesheet" href="css/extras.css" />
 </head>
 <body>
-
-  <!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
   <nav id="main-nav" class="glass">
     <div class="nav-logo">CALI<span>X</span></div>
-
     <div class="nav-links">
       <button class="nav-link active" data-page="home" id="btn-nav-home">
-        <span class="nav-icon-wrap"></span>
-        <span class="nav-lbl">PROGRAM</span>
+        <span class="nav-icon-wrap"></span><span class="nav-lbl">PROGRAM</span>
       </button>
       <button class="nav-link" data-page="calendar" id="btn-nav-calendar">
-        <span class="nav-icon-wrap"></span>
-        <span class="nav-lbl">CALENDAR</span>
+        <span class="nav-icon-wrap"></span><span class="nav-lbl">CALENDAR</span>
       </button>
       <button class="nav-link" data-page="workout" id="btn-nav-workout">
-        <span class="nav-icon-wrap"></span>
-        <span class="nav-lbl">TODAY</span>
+        <span class="nav-icon-wrap"></span><span class="nav-lbl">TODAY</span>
       </button>
       <button class="nav-link" data-page="timer" id="btn-nav-timer">
-        <span class="nav-icon-wrap"></span>
-        <span class="nav-lbl">TIMER</span>
+        <span class="nav-icon-wrap"></span><span class="nav-lbl">TIMER</span>
       </button>
     </div>
-
     <div class="nav-right">
+      <button class="theme-toggle-btn glass" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       <div class="streak-badge glass">
         <span class="streak-fire" id="nav-streak-icon"></span>
-        <span id="nav-streak">0 DAYS</span>
+        <span id="nav-streak">0 STREAK</span>
       </div>
       <div class="progress-pill glass">
         <span id="nav-progress-txt">0/84</span>
@@ -59,7 +50,6 @@
     </div>
   </nav>
 
-  <!-- ═══════════════════════════════════ PAGES ══════════════════════════════════ -->
   <div id="pages-container">
     <div class="page active" id="page-home"></div>
     <div class="page" id="page-calendar"></div>
@@ -67,7 +57,6 @@
     <div class="page" id="page-timer"></div>
   </div>
 
-  <!-- ═══════════════════════════════════ SCRIPTS ════════════════════════════════ -->
   <script src="js/icons.js"></script>
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
@@ -79,10 +68,7 @@
   <script src="pages/timer.js"></script>
   <script src="js/main.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js');
-    }
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
   </script>
-
 </body>
 </html>
